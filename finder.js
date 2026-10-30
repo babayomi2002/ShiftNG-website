@@ -16,6 +16,11 @@
   function nice(s) {
     return s === FCT ? 'Federal Capital Territory' : s;
   }
+  // A local government as INEC's locator names it, with ShiftNG's name in
+  // brackets where the two differ, e.g. AIYEKIRE (Gbonyin).
+  function lgaName(l) {
+    return l.inec ? l.inec + ' (' + l.n + ')' : l.n;
+  }
   function esc(s) {
     return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; });
   }
@@ -44,7 +49,7 @@
     var gov = isFct ? 'No governorship election in the FCT'
       : OFF_CYCLE.indexOf(name) >= 0 ? 'Not on 6 February 2027: ' + name + ' elects its governor on its own date'
       : name + ' State';
-    var html = '<div class="card seats-card"><h2>' + esc(nice(ward.n)) + ' ward, ' + esc(nice(lga.n)) + '</h2>' +
+    var html = '<div class="card seats-card"><h2>' + esc(nice(ward.n)) + ' ward, ' + esc(lgaName(lga)) + '</h2>' +
       '<p class="muted">The seats every polling unit in this ward votes for.</p>' +
       '<h3>16 January 2027</h3><ul class="seat-list">' +
       seatLine('President', 'Federal Republic of Nigeria') +
@@ -70,7 +75,7 @@
     rows.forEach(function (r) {
       html += '<li><span class="unit-name">' + esc(nice(r.u[1])) + '</span>' +
         '<span class="unit-meta">Code ' + esc(unitCode(r.lga, r.ward, r.u)) +
-        (r.showPlace ? ' · ' + esc(nice(r.ward.n)) + ' ward, ' + esc(nice(r.lga.n)) : '') + '</span>' +
+        (r.showPlace ? ' · ' + esc(nice(r.ward.n)) + ' ward, ' + esc(lgaName(r.lga)) : '') + '</span>' +
         (r.showPlace ? '<button type="button" class="link-button" data-l="' + r.lga.c + '" data-w="' + r.ward.c + '">See the seats here</button>' : '') +
         '</li>';
     });
@@ -112,7 +117,7 @@
         current = data;
         // In INEC's own order (by local government code).
         data.lgas.forEach(function (l) {
-          lgaSel.appendChild(option(l.c, nice(l.n)));
+          lgaSel.appendChild(option(l.c, lgaName(l)));
         });
         lgaSel.disabled = false;
         search.disabled = false;
