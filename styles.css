@@ -207,3 +207,87 @@ section.alt .card { background: var(--bg); }
   section { padding: 40px 0; }
   .site-header .wrap { padding-top: 8px; padding-bottom: 8px; }
 }
+
+/* Elections and polling-unit finder */
+.small-note { font-size: 14px; color: var(--muted); margin-top: 12px !important; }
+.day ul { margin: 12px 0 0; padding-left: 18px; color: var(--text); }
+.day li { margin-bottom: 4px; }
+.countdown { font-weight: 700; color: var(--leaf) !important; margin: 4px 0 0 !important; }
+.election-days { margin-top: 24px; }
+.cta-band {
+  margin: 36px 0 8px;
+  background: var(--green-tint);
+  border: 1px solid var(--line);
+  border-left: 6px solid var(--leaf);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 22px;
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.cta-band h2 { margin: 0 0 6px; font-size: 22px; }
+.cta-band p { margin: 0; color: var(--muted); max-width: 640px; }
+.button-green { background: var(--green); color: var(--white); }
+.button-green:hover { background: var(--green-dark); color: var(--white); }
+.steps li { margin-bottom: 8px; }
+
+.finder {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin: 20px 0 12px;
+  box-shadow: var(--shadow);
+}
+.finder label { display: grid; gap: 6px; font-size: 14px; font-weight: 700; color: var(--green); }
+.finder select, .finder input {
+  font: inherit;
+  font-weight: 400;
+  color: var(--text);
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--white);
+  width: 100%;
+}
+.finder select:disabled, .finder input:disabled { background: var(--bg); color: var(--muted); }
+.finder-search { grid-column: 1 / -1; }
+.seats-card { margin: 12px 0 20px; border-top: 4px solid var(--gold); }
+.seats-card h2 { font-size: 22px; margin: 0 0 4px; }
+.seats-card h3 { font-size: 15px; color: var(--green); margin: 16px 0 6px; }
+.seat-list { list-style: none; padding: 0; margin: 0; }
+.seat-list li { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.seat-label { color: var(--muted); }
+.seat-value { font-weight: 700; text-align: right; }
+.seat-missing { font-weight: 400; color: var(--muted); font-style: italic; }
+.unit-list h2 { font-size: 20px; margin: 8px 0 10px; }
+.units { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.units li { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; display: grid; gap: 2px; }
+.unit-name { font-weight: 700; }
+.unit-meta { font-size: 14px; color: var(--muted); }
+.link-button {
+  justify-self: start;
+  background: none;
+  border: none;
+  padding: 4px 0 0;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--green);
+  cursor: pointer;
+  text-decoration: underline;
+}
+.note-box {
+  margin-top: 28px;
+  background: var(--gold-tint);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  font-size: 15px;
+}
+.note-box p { margin: 0 0 8px; }
+.note-box p:last-child { margin-bottom: 0; }

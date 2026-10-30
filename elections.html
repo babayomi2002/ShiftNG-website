@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2027 elections in Nigeria: ShiftNG</title>
+<meta name="description" content="When Nigeria votes in 2027 and what is on the ballot, from INEC's timetable. Find your polling unit and the seats it votes for.">
+<meta property="og:title" content="2027 elections in Nigeria">
+<meta property="og:description" content="When Nigeria votes and what is on the ballot, from INEC's timetable.">
+<meta property="og:url" content="https://shiftng.org/elections.html">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="wordmark" href="index.html">Shift<span>NG</span></a>
+    <nav class="nav" aria-label="Main">
+      <a href="index.html">Home</a>
+      <a href="elections.html" aria-current="page">Elections</a>
+      <a href="polling-unit.html">Polling unit</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+  <div class="wrap">
+    <h1>The 2027 elections</h1>
+    <p class="muted prose">From the Independent National Electoral Commission's (INEC) revised timetable. ShiftNG is not INEC; for anything official, go to <a href="https://inecnigeria.org" rel="noopener">inecnigeria.org</a>.</p>
+
+    <div class="grid election-days">
+      <div class="card day">
+        <span class="tag">Saturday 16 January 2027</span>
+        <h3>Presidential and National Assembly</h3>
+        <p class="countdown" data-date="2027-01-16"></p>
+        <ul>
+          <li><b>President</b>: one vote for the whole country</li>
+          <li><b>Senate</b>: your senatorial district</li>
+          <li><b>House of Representatives</b>: your federal constituency</li>
+        </ul>
+        <p class="small-note">In all 36 states and the Federal Capital Territory.</p>
+      </div>
+      <div class="card day">
+        <span class="tag">Saturday 6 February 2027</span>
+        <h3>Governorship and State House of Assembly</h3>
+        <p class="countdown" data-date="2027-02-06"></p>
+        <ul>
+          <li><b>Governor</b>: in 28 states</li>
+          <li><b>State House of Assembly</b>: your state constituency, in all 36 states</li>
+        </ul>
+        <p class="small-note">No governorship vote on this day in Anambra, Bayelsa, Edo, Ekiti, Imo, Kogi, Ondo and Osun, which elect their governors on their own separate dates. The Federal Capital Territory has no governor or State House of Assembly.</p>
+      </div>
+    </div>
+
+    <div class="cta-band">
+      <div>
+        <h2>Where do you vote, and for which seats?</h2>
+        <p>Choose your state, local government and ward to see every polling unit there, and the Senate, House of Representatives and State Assembly seats it votes for.</p>
+      </div>
+      <a class="button button-green" href="polling-unit.html">Find your polling unit</a>
+    </div>
+
+    <h2>Local government elections</h2>
+    <p class="prose">Chairmen and councillors are elected by each state's own State Independent Electoral Commission, on dates each commission sets. They are not part of INEC's timetable.</p>
+
+    <h2>How results travel</h2>
+    <ol class="prose steps">
+      <li><b>At the polling unit.</b> Votes are counted in public. The figures go on the result sheet (Form EC8A), signed by the officials and party agents present, and a copy is posted at the unit for anyone to see.</li>
+      <li><b>Uploaded.</b> A photo of the sheet is uploaded to INEC's Result Viewing portal (IReV), where the public can view it.</li>
+      <li><b>Collated upwards.</b> Each unit's figures are added up at the ward, then the local government, then the state, each on its own form.</li>
+      <li><b>Declared.</b> The returning officer for each seat declares the result. Only INEC declares results.</li>
+    </ol>
+
+    <h2>Two terms worth knowing</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>Accredited voters</h3>
+        <p>The number of voters checked in at the polling unit before voting. More votes cast than voters accredited is called over-voting.</p>
+      </div>
+      <div class="card">
+        <h3>Over-voting</h3>
+        <p>When votes cast at a polling unit are more than the accredited voters there. Under the Electoral Act, the result of that unit is cancelled.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="links">
+      <a href="elections.html">Elections</a>
+      <a href="polling-unit.html">Polling unit</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+      <a href="privacy.html">Privacy</a>
+    </div>
+    <p>ShiftNG is independent and non-partisan. It is not affiliated with the Independent National Electoral Commission (INEC), any government body or any political party. The organisation behind ShiftNG is in the process of registering in Nigeria.</p>
+    <p>© 2026 ShiftNG</p>
+  </div>
+</footer>
+
+<script>
+  // Days left to each voting day, counted in Nigeria time (West Africa Time).
+  (function () {
+    var now = new Date();
+    var lagosToday = new Date(now.toLocaleString('en-US', { timeZone: 'Africa/Lagos' }));
+    lagosToday.setHours(0, 0, 0, 0);
+    document.querySelectorAll('.countdown').forEach(function (el) {
+      var p = el.getAttribute('data-date').split('-');
+      var day = new Date(+p[0], +p[1] - 1, +p[2]);
+      var days = Math.round((day - lagosToday) / 86400000);
+      el.textContent = days > 1 ? days + ' days to go' : days === 1 ? 'Tomorrow' : days === 0 ? 'Today' : '';
+      if (!el.textContent) el.remove();
+    });
+  })();
+</script>
+</body>
+</html>

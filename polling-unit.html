@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Find your polling unit: ShiftNG</title>
+<meta name="description" content="Find your polling unit by state, local government and ward, with the Senate, House of Representatives and State Assembly seats it votes for.">
+<meta property="og:title" content="Find your polling unit">
+<meta property="og:description" content="Every polling unit in Nigeria, with the seats it votes for in 2027.">
+<meta property="og:url" content="https://shiftng.org/polling-unit.html">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="wordmark" href="index.html">Shift<span>NG</span></a>
+    <nav class="nav" aria-label="Main">
+      <a href="index.html">Home</a>
+      <a href="elections.html">Elections</a>
+      <a href="polling-unit.html" aria-current="page">Polling unit</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+  <div class="wrap">
+    <h1>Find your polling unit</h1>
+    <p class="muted prose">Choose your state, local government and ward, or search by the polling unit's name or code. You will see the seats each unit votes for in 2027.</p>
+
+    <div class="finder">
+      <label>State
+        <select id="state"><option value="">Choose a state</option></select>
+      </label>
+      <label>Local government
+        <select id="lga" disabled><option value="">Choose a state first</option></select>
+      </label>
+      <label>Ward
+        <select id="ward" disabled><option value="">Choose a local government first</option></select>
+      </label>
+      <label class="finder-search">Or search this state by name or code
+        <input id="search" type="search" placeholder="e.g. Saint Mathew or 30-14-02-002" disabled autocomplete="off">
+      </label>
+    </div>
+
+    <p id="status" class="muted" role="status" aria-live="polite"></p>
+    <div id="seats"></div>
+    <div id="results" class="unit-list"></div>
+
+    <div class="note-box prose">
+      <p><b>Where this comes from.</b> Polling units are from INEC's published list, as held in ShiftNG on <span id="built">the last update</span>. INEC can add, move or merge units before an election, so check with INEC before you go to vote.</p>
+      <p><b>Seats.</b> We show a seat only when INEC's published lists confirm which constituency a ward belongs to. Where they do not yet, it says "Not confirmed yet" rather than a guess.</p>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="links">
+      <a href="elections.html">Elections</a>
+      <a href="polling-unit.html">Polling unit</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+      <a href="privacy.html">Privacy</a>
+    </div>
+    <p>ShiftNG is independent and non-partisan. It is not affiliated with the Independent National Electoral Commission (INEC), any government body or any political party. The organisation behind ShiftNG is in the process of registering in Nigeria.</p>
+    <p>© 2026 ShiftNG</p>
+  </div>
+</footer>
+
+<script src="finder.js"></script>
+</body>
+</html>
