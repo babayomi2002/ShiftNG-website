@@ -146,7 +146,7 @@ h2 { font-size: clamp(24px, 4vw, 32px); letter-spacing: -0.5px; line-height: 1.2
 section.alt .card { background: var(--bg); }
 .card h3 { margin: 0 0 8px; font-size: 19px; }
 .card p { margin: 0; color: var(--muted); font-size: 16px; }
-.card .tag {
+.card .tag, .news-card .tag {
   display: inline-block;
   font-size: 12px;
   font-weight: 800;
@@ -291,3 +291,34 @@ section.alt .card { background: var(--bg); }
 }
 .note-box p { margin: 0 0 8px; }
 .note-box p:last-child { margin-bottom: 0; }
+
+/* News */
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin: 20px 0 16px; }
+.chip {
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--green);
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 14px;
+  cursor: pointer;
+}
+.chip:hover { background: var(--green-tint); }
+.chip[aria-selected="true"] { background: var(--green); border-color: var(--green); color: var(--white); }
+.news-list { display: grid; gap: 12px; }
+.news-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--leaf);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 16px 18px;
+  box-shadow: var(--shadow);
+}
+.news-card.news-star { border-left-color: var(--gold); }
+.news-card h3 { margin: 4px 0 6px; font-size: 18px; line-height: 1.35; }
+.news-card h3 a { color: var(--text); text-decoration: none; }
+.news-card h3 a:hover { color: var(--green); text-decoration: underline; }
+.news-card p { margin: 0 0 6px; color: var(--muted); font-size: 16px; }
+.news-card .news-meta { font-size: 14px; margin: 0; }

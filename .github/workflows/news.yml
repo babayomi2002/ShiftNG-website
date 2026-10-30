@@ -1,0 +1,40 @@
+# Refreshes the News page every three hours from the stories approved in
+# the ShiftNG app. Commits only when the stories have changed.
+name: Refresh news
+
+on:
+  schedule:
+    - cron: '17 */3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-news
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Build data/news.json
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: node scripts/build-news.mjs
+      - name: Commit if the news changed
+        run: |
+          if [ -n "$(git status --porcelain data/news.json)" ]; then
+            git config user.name "shiftng-news-bot"
+            git config user.email "shiftng-news-bot@users.noreply.github.com"
+            git add data/news.json
+            git commit -m "Refresh news"
+            git push
+          else
+            echo "No change."
+          fi
