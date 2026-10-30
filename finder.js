@@ -10,11 +10,11 @@
   var statusEl = $('status'), seatsEl = $('seats'), results = $('results');
   var current = null; // the loaded state's data
 
-  // INEC writes many names in capitals; show them in ordinary case.
+  // Names are shown exactly as INEC writes them (capitals, Roman numerals
+  // such as IDO II, and abbreviations such as L.G.E.A or PRY SCH), so a
+  // voter can match them against INEC's own list. Only "FCT" is spelt out.
   function nice(s) {
-    if (s === FCT) return 'Federal Capital Territory';
-    if (s !== s.toUpperCase()) return s;
-    return s.toLowerCase().replace(/(^|[\s\/\-(,.'])([a-z])/g, function (m, a, b) { return a + b.toUpperCase(); });
+    return s === FCT ? 'Federal Capital Territory' : s;
   }
   function esc(s) {
     return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; });
@@ -92,7 +92,8 @@
     seatsEl.innerHTML = ''; results.innerHTML = '';
     var lga = current && current.lgas.find(function (l) { return l.c === lgaSel.value; });
     if (!lga) return;
-    lga.wards.slice().sort(function (a, b) { return a.n.localeCompare(b.n); }).forEach(function (w) {
+    // In INEC's own order (by ward code), so EFON V comes before EFON IX.
+    lga.wards.forEach(function (w) {
       wardSel.appendChild(option(w.c, nice(w.n)));
     });
     wardSel.disabled = false;
@@ -109,7 +110,8 @@
       .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(function (data) {
         current = data;
-        data.lgas.slice().sort(function (a, b) { return a.n.localeCompare(b.n); }).forEach(function (l) {
+        // In INEC's own order (by local government code).
+        data.lgas.forEach(function (l) {
           lgaSel.appendChild(option(l.c, nice(l.n)));
         });
         lgaSel.disabled = false;
