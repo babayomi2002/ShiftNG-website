@@ -30,7 +30,8 @@ const CATEGORIES = [
   ['international', 'International'],
   ['sport', 'Sport'],
 ];
-const PER_CATEGORY = 15;
+// The same number, in the same order, as a category page in the app.
+const PER_CATEGORY = 20;
 
 const safeLink = (u) => {
   try {
@@ -45,7 +46,7 @@ const categories = [];
 for (const [slug, label] of CATEGORIES) {
   const q = `news_items?status=eq.published&category=eq.${slug}` +
     `&select=headline,excerpt,source_name,source_url,published_at,is_star` +
-    `&order=is_star.desc,published_at.desc&limit=${PER_CATEGORY}`;
+    `&order=is_star.desc,published_at.desc,created_at.desc,id.asc&limit=${PER_CATEGORY}`;
   const res = await fetch(`${url}/rest/v1/${q}`, { headers: { apikey: key, Authorization: `Bearer ${key}` } });
   if (!res.ok) throw new Error(`${slug}: ${res.status} ${await res.text()}`);
   const rows = await res.json();
