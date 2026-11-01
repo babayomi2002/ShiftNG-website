@@ -1,15 +1,9 @@
 /* ShiftNG website. Brand palette only: Forest green, Leaf green, Dark
    Goldenrod and White (designer's brand guide), plus neutral greys for
    body text and lines. Nothing is loaded from other companies. */
-/* Ubuntu Bold, for the ShiftNG wordmark only. Served from this site
-   (fonts/, with its licence, UFL.txt). */
-@font-face {
-  font-family: "Ubuntu";
-  src: url("fonts/Ubuntu-Bold.ttf") format("truetype");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
+/* The ShiftNG wordmark is wordmark.svg: the letters drawn from Ubuntu Bold
+   (fonts/, with its licence, UFL.txt) by scripts/make_wordmark.py, so no
+   font file is downloaded. */
 
 :root {
   --green: #0E5C35;        /* Forest green */
@@ -71,7 +65,7 @@ a:hover { color: var(--green-dark); }
   text-decoration: none;
   color: var(--green);
 }
-.wordmark span { color: var(--leaf); }
+.wordmark img { display: block; height: 1.121em; width: auto; }
 .wordmark:hover { color: var(--green); }
 .nav { display: flex; gap: 4px; flex-wrap: wrap; }
 .nav a {
