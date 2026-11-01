@@ -322,3 +322,80 @@ section.alt .card { background: var(--bg); }
 .news-card h3 a:hover { color: var(--green); text-decoration: underline; }
 .news-card p { margin: 0 0 6px; color: var(--muted); font-size: 16px; }
 .news-card .news-meta { font-size: 14px; margin: 0; }
+
+/* Civic: public projects. Stage colours stay within the brand palette;
+   "Sources disagree" is the strongest (solid goldenrod). */
+.crumbs { font-size: 14px; color: var(--muted); margin: 0 0 8px; }
+.crumbs a { font-weight: 600; }
+.state-card { text-decoration: none; color: inherit; display: block; }
+.state-card:hover { border-top-color: var(--gold); }
+.place-pick { display: grid; gap: 6px; max-width: 420px; margin: 16px 0 4px; font-size: 14px; font-weight: 700; color: var(--green); }
+.place-pick select {
+  font: inherit; font-weight: 400; color: var(--text); padding: 10px 12px;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--white); width: 100%;
+}
+.project-section { margin: 8px 0 20px; }
+.project-section h2 { font-size: 20px; margin: 20px 0 2px; }
+.section-toggle {
+  font: inherit; font-size: 20px; font-weight: 700; color: var(--text); background: none; border: none;
+  padding: 0; margin: 20px 0 2px; cursor: pointer; text-align: left;
+}
+.section-toggle:hover { color: var(--green); }
+.section-total, .section-hint { font-size: 14px; color: var(--muted); margin: 0; }
+.project-list { display: grid; gap: 12px; margin-top: 12px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+.project-card {
+  display: flex; flex-direction: column; gap: 4px; text-decoration: none; color: inherit;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 14px 16px; box-shadow: var(--shadow); min-width: 0;
+}
+.project-card:hover { border-color: var(--leaf); color: inherit; }
+.pc-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 4px; }
+.who-pays {
+  font-size: 12px; font-weight: 700; color: var(--white); background: var(--green);
+  border-radius: 6px; padding: 3px 8px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.stage { font-size: 12px; font-weight: 800; border-radius: 6px; padding: 3px 8px; white-space: nowrap; flex-shrink: 0; }
+.stage-budgeted, .stage-not_in_latest_budget { background: #EDF0F3; color: var(--muted); }
+.stage-being_paid { background: var(--gold-tint); color: var(--green-dark); }
+.stage-fully_paid { background: var(--green-tint); color: var(--green); }
+.stage-residents_confirm { background: var(--leaf); color: var(--white); }
+.stage-sources_disagree { background: var(--gold); color: var(--white); }
+.pc-title { font-size: 16px; font-weight: 700; line-height: 1.35; overflow-wrap: anywhere; }
+.pc-place { font-size: 14px; color: var(--muted); }
+.pc-money { font-size: 15px; font-weight: 600; margin-top: 4px; }
+.pc-note { font-size: 14px; color: var(--muted); }
+.pc-alert { color: var(--text); font-weight: 700; border-left: 4px solid var(--gold); padding-left: 8px; }
+.pc-source { font-size: 13px; color: var(--muted); font-style: italic; margin-top: 4px; overflow-wrap: anywhere; }
+.paid-bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; margin-top: 6px; }
+.paid-bar span { display: block; height: 100%; background: var(--green); }
+.paid-bar-big { height: 10px; border-radius: 5px; }
+.paid-note { font-size: 12px; color: var(--muted); margin: 3px 0 0; }
+.more {
+  font: inherit; font-size: 14px; font-weight: 700; color: var(--green); background: var(--white);
+  border: 1px solid var(--line); border-radius: 10px; padding: 10px 16px; margin-top: 12px; cursor: pointer; width: 100%;
+}
+.more:hover { background: var(--green-tint); }
+
+.project-page { max-width: 760px; }
+.project-page h1 { font-size: clamp(24px, 4.5vw, 34px); margin: 8px 0 8px; overflow-wrap: anywhere; }
+.project-page h2 { font-size: 20px; margin: 28px 0 8px; }
+.project-page > p { margin: 0 0 8px; }
+.place-list { list-style: none; padding: 0; margin: 0 0 12px; color: var(--muted); font-size: 15px; }
+.basis { font-style: italic; font-size: 14px; }
+.tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 16px 0 6px; }
+.tile { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: grid; gap: 2px; }
+.tile span { font-size: 13px; color: var(--muted); }
+.tile strong { font-size: 18px; overflow-wrap: anywhere; }
+.tile .tile-small { font-size: 14px; }
+.project-actions { margin: 16px 0 4px; }
+.project-actions .button { border: none; font: inherit; font-weight: 700; cursor: pointer; }
+.office-list { margin: 0; padding-left: 18px; }
+.history { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+.history li { border-left: 3px solid var(--leaf); padding-left: 12px; display: grid; gap: 2px; font-size: 15px; overflow-wrap: anywhere; }
+.history a { font-weight: 700; font-size: 14px; }
+.soon-dark { color: var(--green); font-weight: 700; font-size: 15px; }
+
+@media (max-width: 560px) {
+  .project-list { grid-template-columns: 1fr; }
+  .tiles { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,41 @@
+# Rebuilds the Civic pages' data every night from the public projects in
+# the ShiftNG app. Commits only when something has changed.
+name: Refresh civic projects
+
+on:
+  schedule:
+    - cron: '41 1 * * *'   # 02:41 Nigeria time
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-site-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Build data/civic
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: node scripts/build-civic.mjs
+      - name: Commit if the projects changed
+        run: |
+          if [ -n "$(git status --porcelain data/civic)" ]; then
+            git config user.name "shiftng-civic-bot"
+            git config user.email "shiftng-civic-bot@users.noreply.github.com"
+            git add data/civic
+            git commit -m "Refresh civic projects"
+            git pull --rebase
+            git push
+          else
+            echo "No change."
+          fi
