@@ -60,7 +60,11 @@ var Civic = (function () {
     var paid = naira(c.p || 0);
     // Below the full budget never reads as 100%.
     var share = c.b ? ((c.p || 0) >= c.b ? 100 : Math.min(99, Math.round(((c.p || 0) / c.b) * 100))) : 0;
+    // The government's own report can show money paid on a line with no
+    // budget, or more paid than budgeted: say so, never hide it.
+    if (!c.b && (c.p || 0) > 0) return paid + ' paid · no budget printed';
     if (!budget) return null;
+    if ((c.p || 0) > c.b) return paid + ' paid against a ' + budget + ' budget (' + Math.round((c.p / c.b) * 100) + '%)';
     switch (c.s) {
       case 'budgeted': return budget + ' budgeted' + (c.y ? ' for ' + c.y : '');
       case 'being_paid':

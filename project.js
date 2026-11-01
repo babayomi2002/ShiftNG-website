@@ -11,6 +11,7 @@
 
   var BASIS = {
     location_code: "the state's location code",
+    own_report: "the local government's own report",
     named_ward: 'named in the project',
     all_wards: 'all wards of the LGA',
     named_in_text: 'from the project description',
