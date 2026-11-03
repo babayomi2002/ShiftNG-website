@@ -12,13 +12,14 @@
   var BASIS = {
     location_code: "the state's location code",
     own_report: "the local government's own report",
+    own_budget: "the local government's own budget",
     named_ward: 'named in the project',
     all_wards: 'all wards of the LGA',
     named_in_text: 'from the project description',
     resident_report: 'reported by residents',
     admin: 'added by ShiftNG'
   };
-  var KIND = { approved_budget: 'Approved budget', quarterly_report: 'Budget report', audit: 'Audit', sample: 'Sample data' };
+  var KIND = { approved_budget: 'Approved budget', quarterly_report: 'Budget report', budget_actuals: 'Spending, as printed in the next budget', audit: 'Audit', sample: 'Sample data' };
 
   function placeText(p, state) {
     if (!p.lga) return state + ' (statewide)';
