@@ -176,6 +176,12 @@ for (const [state, cards] of Object.entries(byState).sort()) {
   });
   keep.add(`${slug(state)}.json`);
 }
+// The database's public address and public (anon) key, for the Civic page's
+// nationwide search (civic_projects, step 35): the same key every copy of the
+// app carries, which can only do what the database's access rules allow.
+write('data/civic/config.json', { url, key });
+keep.add('config.json');
+
 for (const f of readdirSync('data/civic')) {
   if (f.endsWith('.json') && f !== 'index.json' && !keep.has(f)) {
     unlinkSync(`data/civic/${f}`);
