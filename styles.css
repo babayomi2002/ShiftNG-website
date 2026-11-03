@@ -393,3 +393,25 @@ section.alt .card { background: var(--bg); }
   .project-list { grid-template-columns: 1fr; }
   .tiles { grid-template-columns: 1fr; }
 }
+
+/* Civic search, amount ranges and page numbers */
+.civic-filters { margin: 16px 0 8px; }
+.civic-filters .chips { margin: 8px 0 12px; }
+.civic-search {
+  font: inherit; font-size: 15px; width: 100%; max-width: 560px; box-sizing: border-box;
+  border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; background: var(--white);
+}
+.civic-search:focus { outline: 2px solid var(--green); outline-offset: 1px; }
+.filter-label { font-size: 13px; font-weight: 700; color: var(--muted); margin: 4px 0 0; }
+.result-line { font-weight: 700; margin: 4px 0 0; }
+.pager { text-align: center; margin: 16px 0 24px; }
+.pager p { margin: 0 0 8px; font-size: 13px; }
+.pager-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.page-btn {
+  font: inherit; font-size: 14px; font-weight: 700; color: var(--green); background: var(--white);
+  border: 1px solid var(--line); border-radius: 8px; min-width: 38px; padding: 6px 10px; cursor: pointer;
+}
+.page-btn:hover:not([disabled]) { background: var(--green-tint); }
+.page-btn[aria-current="page"] { background: var(--green); border-color: var(--green); color: var(--white); cursor: default; }
+.page-btn[disabled]:not([aria-current]) { opacity: 0.4; cursor: default; }
+.pager-gap { padding: 6px 2px; color: var(--muted); }

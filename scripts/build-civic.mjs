@@ -109,6 +109,8 @@ for (const p of projects) {
   const card = {
     i: p.id,
     t: p.title,
+    // (For the page's search, which looks in the description too, as the app's.)
+    ...(p.description ? { d: p.description } : {}),
     l: p.project_level,
     w: p.funded_by_name,
     s: p.stage,
