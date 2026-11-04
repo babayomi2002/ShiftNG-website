@@ -26,16 +26,21 @@ if (!url || !key) {
   process.exit(1);
 }
 
+// Pages by id (each page starts after the last id read), not by offset: a
+// load running while the site builds would otherwise shift the pages and
+// read some rows twice and miss others (3 Nov 2026). Queries order by id.
 async function all(query) {
   const rows = [];
-  for (let offset = 0; ; offset += 1000) {
-    const res = await fetch(`${url}/rest/v1/${query}&limit=1000&offset=${offset}`, {
+  for (let after = null; ; ) {
+    const from = after === null ? '' : `&id=gt.${encodeURIComponent(after)}`;
+    const res = await fetch(`${url}/rest/v1/${query}${from}&limit=1000`, {
       headers: { apikey: key, Authorization: `Bearer ${key}` },
     });
     if (!res.ok) throw new Error(`${query.split('?')[0]}: ${res.status} ${await res.text()}`);
     const page = await res.json();
     rows.push(...page);
     if (page.length < 1000) return rows;
+    after = page[page.length - 1].id;
   }
 }
 
@@ -73,7 +78,7 @@ const projects = await all(
 // (the same count the app shows). user_id is read only to count people.
 const since = new Date(Date.now() - 365 * 24 * 3600 * 1000).toISOString();
 const reports = await all(
-  `project_comments?select=project_id,user_id,site_says&status=eq.visible&parent_id=is.null&site_says=not.is.null&created_at=gte.${since}&order=id`,
+  `project_comments?select=id,project_id,user_id,site_says&status=eq.visible&parent_id=is.null&site_says=not.is.null&created_at=gte.${since}&order=id`,
 );
 const residents = {};
 for (const r of reports) {
