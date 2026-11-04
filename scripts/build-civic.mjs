@@ -68,15 +68,37 @@ const OFFICE = {
   ward_councillor: (o) => `Councillor, ${o.ward} ward, ${o.lga}`,
 };
 
+// Projects, their places, offices and readings as four plain lists, joined
+// here: one request asking for each project with all of these ran past the
+// database's time limit for public reads once there were 110,000 projects
+// (4 Nov 2026), whatever the page size.
 const projects = await all(
   'projects?select=id,title,description,project_level,state,lga,ward,funded_by_name,stage,current_budget,paid_to_date,' +
-    'budget_year,last_source_title,last_source_page,sector,' +
-    'project_places(state,lga,ward,role,basis,confirmed),' +
-    'project_offices(is_primary,offices(office_type,state,lga,ward,constituency)),' +
-    'project_readings(page,approved,final_budget,paid_in_period,paid_to_date,budget_sources(title,period,kind,period_end,published_url))' +
-    '&order=id',
-  250,
+    'budget_year,last_source_title,last_source_page,sector&order=id',
 );
+const byProject = (rows) => {
+  const m = new Map();
+  for (const r of rows) {
+    if (!m.has(r.project_id)) m.set(r.project_id, []);
+    m.get(r.project_id).push(r);
+  }
+  return m;
+};
+const placesOfProject = byProject(await all('project_places?select=id,project_id,state,lga,ward,role,basis,confirmed&order=id'));
+const officesOfProject = byProject(
+  await all('project_offices?select=id,project_id,is_primary,offices(office_type,state,lga,ward,constituency)&order=id'),
+);
+const readingsOfProject = byProject(
+  await all(
+    'project_readings?select=id,project_id,page,approved,final_budget,paid_in_period,paid_to_date,' +
+      'budget_sources(title,period,kind,period_end,published_url)&order=id',
+  ),
+);
+for (const p of projects) {
+  p.project_places = placesOfProject.get(p.id) ?? [];
+  p.project_offices = officesOfProject.get(p.id) ?? [];
+  p.project_readings = readingsOfProject.get(p.id) ?? [];
+}
 
 // What residents say they see, counted once per person over 12 months
 // (the same count the app shows). user_id is read only to count people.
