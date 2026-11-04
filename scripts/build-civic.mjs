@@ -29,18 +29,25 @@ if (!url || !key) {
 // Pages by id (each page starts after the last id read), not by offset: a
 // load running while the site builds would otherwise shift the pages and
 // read some rows twice and miss others (3 Nov 2026). Queries order by id.
-// (size: rows per request. The projects query, with every reading, office and
-// place, runs past the database's time limit for public reads at 1,000 rows
-// once there are 75,000 projects (4 Nov 2026); 250 keeps each request short.)
-async function all(query, size = 1000) {
+// (size: rows per request.) A request that fails, as one can when the database
+// is busy (a statement timeout, 4 Nov 2026), is tried again up to four times,
+// a little later each time, before the build gives up.
+async function get(path) {
+  for (let attempt = 1; ; attempt++) {
+    const res = await fetch(`${url}/rest/v1/${path}`, { headers: { apikey: key, Authorization: `Bearer ${key}` } });
+    if (res.ok) return res.json();
+    const why = `${path.split('?')[0]}: ${res.status} ${await res.text()}`;
+    if (attempt >= 5) throw new Error(why);
+    console.log(`retrying (${attempt}) after: ${why.slice(0, 160)}`);
+    await new Promise((r) => setTimeout(r, attempt * 5000));
+  }
+}
+
+async function all(query, size = 500) {
   const rows = [];
   for (let after = null; ; ) {
     const from = after === null ? '' : `&id=gt.${encodeURIComponent(after)}`;
-    const res = await fetch(`${url}/rest/v1/${query}${from}&limit=${size}`, {
-      headers: { apikey: key, Authorization: `Bearer ${key}` },
-    });
-    if (!res.ok) throw new Error(`${query.split('?')[0]}: ${res.status} ${await res.text()}`);
-    const page = await res.json();
+    const page = await get(`${query}${from}&limit=${size}`);
     rows.push(...page);
     if (page.length < size) return rows;
     after = page[page.length - 1].id;
