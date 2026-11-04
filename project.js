@@ -13,6 +13,7 @@
     location_code: "the state's location code",
     own_report: "the local government's own report",
     own_budget: "the local government's own budget",
+    audit_report: "the Auditor-General's report",
     named_ward: 'named in the project',
     all_wards: 'all wards of the LGA',
     named_in_text: 'from the project description',
