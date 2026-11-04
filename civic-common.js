@@ -88,7 +88,14 @@ var Civic = (function () {
   }
 
   function placeLine(c, state) {
-    return [c.W, c.L, state].filter(Boolean).join(', ');
+    // A federal card that names several states says where else it is.
+    var ss = c.ss || [];
+    if (c.l === 'federal' && ss.length > 1) {
+      var others = ss.filter(function (s) { return s !== state; });
+      return state && state !== 'Federal' ? state + ' · also in ' + others.join(', ') : ss.join(', ');
+    }
+    if (c.l === 'federal' && !ss.length) return 'No place named';
+    return [c.W, c.L, state === 'Federal' ? null : state].filter(Boolean).join(', ');
   }
 
   function stagePill(c) {
@@ -124,6 +131,17 @@ var Civic = (function () {
   function inSection(c, section, lga, ward) {
     var pl = c.pl || [];
     function some(f) { return pl.some(f); }
+    // Federal projects (step 91): their own sections only. In a state's file a
+    // federal card carries that state's places; the Federal file has those
+    // that name no place ("national") or several states ("multi").
+    if (c.l === 'federal') {
+      var ss = c.ss || [];
+      if (section === 'national') return !ss.length;
+      if (section === 'multi') return ss.length > 1;
+      if (section !== 'federal') return false;
+      if (!lga) return true;
+      return some(function (p) { return p[0] === lga && (!ward || p[1] === ward || p[1] === null); });
+    }
     if (!pl.length) {
       if (!lga) return section === c.l;
       return section === 'here' && c.L === lga && (!ward || c.W === ward);

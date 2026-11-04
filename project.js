@@ -18,12 +18,13 @@
     all_wards: 'all wards of the LGA',
     named_in_text: 'from the project description',
     resident_report: 'reported by residents',
+    agency_location: 'where the agency is (its name)',
     admin: 'added by ShiftNG'
   };
   var KIND = { approved_budget: 'Approved budget', quarterly_report: 'Budget report', budget_actuals: 'Spending, as printed in the next budget', audit: 'Audit', sample: 'Sample data' };
 
   function placeText(p, state) {
-    if (!p.lga) return state + ' (statewide)';
+    if (!p.lga) return (p.state || state) + ' (statewide)';
     if (p.role === 'all_wards') return 'All wards of ' + p.lga;
     return [p.ward, p.lga].filter(Boolean).join(', ');
   }

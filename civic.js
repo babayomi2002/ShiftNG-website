@@ -76,24 +76,35 @@
     crumbs.innerHTML = parts.join(' <span aria-hidden="true">›</span> ');
   }
 
+  var FEDERAL_HINT = 'From the 2026 Appropriation Act. Each project shows its full amount; one that names several places shows in each of them.';
+
   function sections() {
+    if (state === 'Federal') {
+      return [
+        { key: 'multi', title: 'Shared by several states', hint: FEDERAL_HINT },
+        { key: 'national', title: 'No place named', hint: "Lines of the Act that name no state, LGA or constituency, and whose agency's name gives no place either: national programmes, headquarters items and the like." }
+      ];
+    }
     if (!lga) {
       return [
         { key: 'state', title: state + ' State Government projects' },
-        { key: 'lga', title: 'Local government projects' }
+        { key: 'lga', title: 'Local government projects' },
+        { key: 'federal', title: 'Federal projects in ' + state, hint: FEDERAL_HINT }
       ];
     }
     if (!ward) {
       return [
         { key: 'here', title: 'In ' + lga },
         { key: 'shared', title: 'Shared with other LGAs', hint: 'Roads and other projects that run through more than one LGA. Each shows its full amount.' },
-        { key: 'statewide', title: 'Statewide projects', collapsed: true }
+        { key: 'statewide', title: 'Statewide projects', collapsed: true },
+        { key: 'federal', title: 'Federal projects in ' + lga, hint: FEDERAL_HINT }
       ];
     }
     return [
       { key: 'here', title: 'In ' + ward },
       { key: 'all_wards', title: 'Across all wards of ' + lga },
-      { key: 'lga_no_ward', title: 'In ' + lga + ', ward not given', collapsed: true }
+      { key: 'lga_no_ward', title: 'In ' + lga + ', ward not given', collapsed: true },
+      { key: 'federal', title: 'Federal projects in ' + ward + ' or across ' + lga, hint: FEDERAL_HINT }
     ];
   }
 
@@ -299,18 +310,22 @@
 
   function showStates(index) {
     title.textContent = 'Public projects';
-    var have = index.states.map(function (s) {
+    var fed = index.states.find(function (s) { return s.state === 'Federal'; });
+    var have = index.states.filter(function (s) { return s.state !== 'Federal'; }).map(function (s) {
       return '<a class="card state-card" href="' + esc(link({ state: s.state })) + '">' +
         '<h3>' + esc(s.state) + '</h3><p>' + s.projects + ' projects · ' + esc(C.naira(s.budget)) + ' budgeted</p></a>';
     }).join('');
-    main.innerHTML = '<div class="grid">' + have + '</div>' +
+    main.innerHTML = (fed ? '<a class="card state-card federal-card" href="' + esc(link({ state: 'Federal' })) + '">' +
+        '<h3>Federal projects across Nigeria</h3><p>' + fed.projects + ' that name no place or several states · ' +
+        esc(C.naira(fed.budget)) + '. The rest show on each state’s page.</p></a>' : '') +
+      '<div class="grid">' + have + '</div>' +
       '<p class="muted small-note">More states will follow as we read their budget documents. Until then their pages stay empty rather than show figures we have not checked.</p>';
   }
 
   function showPlace() {
     var name = ward || lga || state;
     document.title = name + ' public projects: ShiftNG';
-    title.textContent = ward ? ward + ' ward' : lga ? lga + ' Local Government' : state + ' State';
+    title.textContent = ward ? ward + ' ward' : lga ? lga + ' Local Government' : state === 'Federal' ? 'Federal projects' : state + ' State';
     if (lga && !data.lgas.some(function (l) { return l.n === lga; })) {
       main.innerHTML = '<p class="muted">We could not find that local government in ' + esc(state) + '.</p>';
       return;

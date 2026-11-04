@@ -322,6 +322,9 @@ section.alt .card { background: var(--bg); }
 .crumbs { font-size: 14px; color: var(--muted); margin: 0 0 8px; }
 .crumbs a { font-weight: 600; }
 .state-card { text-decoration: none; color: inherit; display: block; }
+/* The nationwide federal projects, above the states. */
+.federal-card { margin-bottom: 16px; border: 1px solid var(--forest, #0E5C35); }
+.federal-card h3 { color: var(--forest, #0E5C35); }
 .state-card:hover { border-top-color: var(--gold); }
 .place-pick { display: grid; gap: 6px; max-width: 420px; margin: 16px 0 4px; font-size: 14px; font-weight: 700; color: var(--green); }
 .place-pick select {

@@ -29,17 +29,20 @@ if (!url || !key) {
 // Pages by id (each page starts after the last id read), not by offset: a
 // load running while the site builds would otherwise shift the pages and
 // read some rows twice and miss others (3 Nov 2026). Queries order by id.
-async function all(query) {
+// (size: rows per request. The projects query, with every reading, office and
+// place, runs past the database's time limit for public reads at 1,000 rows
+// once there are 75,000 projects (4 Nov 2026); 250 keeps each request short.)
+async function all(query, size = 1000) {
   const rows = [];
   for (let after = null; ; ) {
     const from = after === null ? '' : `&id=gt.${encodeURIComponent(after)}`;
-    const res = await fetch(`${url}/rest/v1/${query}${from}&limit=1000`, {
+    const res = await fetch(`${url}/rest/v1/${query}${from}&limit=${size}`, {
       headers: { apikey: key, Authorization: `Bearer ${key}` },
     });
     if (!res.ok) throw new Error(`${query.split('?')[0]}: ${res.status} ${await res.text()}`);
     const page = await res.json();
     rows.push(...page);
-    if (page.length < 1000) return rows;
+    if (page.length < size) return rows;
     after = page[page.length - 1].id;
   }
 }
@@ -68,10 +71,11 @@ const OFFICE = {
 const projects = await all(
   'projects?select=id,title,description,project_level,state,lga,ward,funded_by_name,stage,current_budget,paid_to_date,' +
     'budget_year,last_source_title,last_source_page,sector,' +
-    'project_places(lga,ward,role,basis,confirmed),' +
+    'project_places(state,lga,ward,role,basis,confirmed),' +
     'project_offices(is_primary,offices(office_type,state,lga,ward,constituency)),' +
     'project_readings(page,approved,final_budget,paid_in_period,paid_to_date,budget_sources(title,period,kind,period_end,published_url))' +
     '&order=id',
+  250,
 );
 
 // What residents say they see, counted once per person over 12 months
@@ -110,7 +114,9 @@ mkdirSync('data/civic/p', { recursive: true });
 const byState = {};
 const keep = new Set();
 for (const p of projects) {
-  const places = (p.project_places ?? []).map((x) => ({ lga: x.lga, ward: x.ward, role: x.role, basis: x.basis }));
+  const places = (p.project_places ?? []).map((x) => ({ state: x.state, lga: x.lga, ward: x.ward, role: x.role, basis: x.basis }));
+  // The states a federal project names (step 91): it shows on each of them.
+  const states = [...new Set(places.map((x) => x.state).filter(Boolean))].sort();
   const card = {
     i: p.id,
     t: p.title,
@@ -128,8 +134,19 @@ for (const p of projects) {
     W: p.ward,
     sec: p.sector,
     pl: places.map((x) => [x.lga, x.ward, x.role]),
+    ...(p.project_level === 'federal' ? { ss: states } : {}),
   };
-  (byState[p.state] ??= []).push(card);
+  if (p.project_level === 'federal') {
+    // One card per Act line (owner, 4 Nov 2026), shown in every state it names
+    // with that state's places; the nationwide Federal page has those that
+    // name no place and those shared by several states.
+    for (const st of states) {
+      (byState[st] ??= []).push({ ...card, pl: places.filter((x) => x.state === st).map((x) => [x.lga, x.ward, x.role]) });
+    }
+    if (states.length !== 1) (byState.Federal ??= []).push({ ...card, pl: [] });
+  } else {
+    (byState[p.state] ??= []).push(card);
+  }
 
   const offices = (p.project_offices ?? [])
     .map((po) => ({ primary: po.is_primary, o: one(po.offices) }))
