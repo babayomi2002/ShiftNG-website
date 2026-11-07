@@ -43,6 +43,21 @@ async function get(path) {
   }
 }
 
+// How many rows the database says a table has (anon view), tried like get().
+async function countRows(table) {
+  for (let attempt = 1; ; attempt++) {
+    const res = await fetch(`${url}/rest/v1/${table}?select=id&limit=1`, {
+      headers: { apikey: key, Authorization: `Bearer ${key}`, Prefer: 'count=exact' },
+    });
+    const total = Number((res.headers.get('content-range') ?? '').split('/')[1]);
+    if (res.ok && Number.isFinite(total)) return total;
+    const why = `${table} count: ${res.status} ${await res.text()}`;
+    if (attempt >= 5) throw new Error(why);
+    console.log(`retrying (${attempt}) after: ${why.slice(0, 160)}`);
+    await new Promise((r) => setTimeout(r, attempt * 5000));
+  }
+}
+
 async function all(query, size = 500) {
   const rows = [];
   for (let after = null; ; ) {
@@ -101,6 +116,18 @@ const readingsOfProject = byProject(
       'budget_sources(title,period,kind,period_end,published_url)&order=id',
   ),
 );
+// Guard 1 (audit PM-09, 7 Nov 2026): every public project must have been read.
+// A short read (an access-rule change, a half-run step, a failed page) would
+// otherwise delete the missing projects' pages from the public site.
+const expected = await countRows('projects');
+if (projects.length !== expected) {
+  console.error(
+    `STOPPED: read ${projects.length} projects but the database says ${expected}. ` +
+      'Nothing was written. If a data load was running, run this job again once it has finished.',
+  );
+  process.exit(1);
+}
+
 for (const p of projects) {
   p.project_places = placesOfProject.get(p.id) ?? [];
   p.project_offices = officesOfProject.get(p.id) ?? [];
@@ -142,6 +169,7 @@ function write(path, value) {
 mkdirSync('data/civic/p', { recursive: true });
 const byState = {};
 const keep = new Set();
+const pages = []; // [path, contents]: written only after the guards below pass
 for (const p of projects) {
   const places = (p.project_places ?? []).map((x) => ({ state: x.state, lga: x.lga, ward: x.ward, role: x.role, basis: x.basis }));
   // The states a federal project names (step 91): it shows on each of them.
@@ -191,7 +219,7 @@ for (const p of projects) {
       approved: r.approved, final: r.final_budget, inPeriod: r.paid_in_period, toDate: r.paid_to_date,
     }));
   const res = residents[p.id];
-  write(`data/civic/p/${p.id}.json`, {
+  pages.push([`data/civic/p/${p.id}.json`, {
     ...card,
     state: p.state,
     d: p.description,
@@ -203,9 +231,46 @@ for (const p of projects) {
       inProgress: res ? res.inProgress.size : 0,
       notDone: res ? res.notDone.size : 0,
     },
-  });
+  }]);
   keep.add(`${p.id}.json`);
 }
+
+// Guard 2 (audit PM-09): refuse a sudden shrink compared with what is live now.
+// Real large removals (e.g. taking down proposed budgets) are allowed only when
+// the owner runs the job by hand with "allow_shrink" ticked (ALLOW_SHRINK=true).
+const before = existsSync('data/civic/index.json') ? JSON.parse(readFileSync('data/civic/index.json', 'utf8')) : null;
+{
+  const problems = [];
+  if (projects.length === 0) problems.push('the database returned no projects at all');
+  if (before?.states?.length) {
+    const prevCards = before.states.reduce((n, s) => n + s.projects, 0);
+    const nowCards = Object.values(byState).reduce((n, c) => n + c.length, 0);
+    if (nowCards < prevCards * 0.98) problems.push(`project cards would fall from ${prevCards} to ${nowCards} (more than 2%)`);
+    for (const s of before.states) {
+      const now = byState[s.state]?.length ?? 0;
+      const drop = s.projects - now;
+      if (drop >= 20 && drop > s.projects * 0.1) problems.push(`${s.state} would fall from ${s.projects} to ${now} cards (more than 10%)`);
+    }
+  }
+  const existingPages = readdirSync('data/civic/p').filter((f) => f.endsWith('.json'));
+  const removed = existingPages.filter((f) => !keep.has(f)).length;
+  if (existingPages.length && removed > existingPages.length * 0.02) {
+    problems.push(`${removed} of ${existingPages.length} project pages would be deleted (more than 2%)`);
+  }
+  if (problems.length) {
+    const fatal = projects.length === 0;
+    if (process.env.ALLOW_SHRINK === 'true' && !fatal) {
+      console.log(`allow_shrink is set, so going ahead despite: ${problems.join('; ')}.`);
+    } else {
+      console.error(
+        `STOPPED, nothing was written: ${problems.join('; ')}.\n` +
+          'If this removal is intended, run "Refresh civic projects" by hand on GitHub with "allow_shrink" ticked.',
+      );
+      process.exit(1);
+    }
+  }
+}
+for (const [path, value] of pages) write(path, value);
 
 // A project taken down leaves no page behind.
 for (const f of readdirSync('data/civic/p')) {
@@ -240,7 +305,6 @@ for (const f of readdirSync('data/civic')) {
   }
 }
 
-const before = existsSync('data/civic/index.json') ? JSON.parse(readFileSync('data/civic/index.json', 'utf8')) : null;
 if (changed || !before || JSON.stringify(before.states) !== JSON.stringify(index)) {
   writeFileSync('data/civic/index.json', JSON.stringify({ builtAt: new Date().toISOString(), states: index }), 'utf8');
   console.log(`civic written: ${projects.length} projects in ${index.length} state(s), ${changed} file(s) changed`);

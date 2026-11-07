@@ -1,0 +1,40 @@
+# Fails (so GitHub emails the owner) if the website's data jobs have quietly
+# stopped succeeding: News should succeed at least every 7 hours (it runs every
+# 3) and Civic at least every 27 hours (it runs nightly). A run that finds no
+# change still counts as a success. Audit item PM-09 / QA-12, 7 Nov 2026.
+name: Website data watchdog
+
+on:
+  schedule:
+    - cron: '50 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  actions: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the last successful news and civic runs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          now=$(date -u +%s)
+          stale=0
+          check() { # workflow file, max hours
+            last=$(gh run list -R "$REPO" --workflow "$1" --status success --limit 1 --json updatedAt -q '.[0].updatedAt // empty')
+            if [ -z "$last" ]; then echo "::error::$1 has never succeeded."; stale=1; return; fi
+            hours=$(( (now - $(date -u -d "$last" +%s)) / 3600 ))
+            if [ "$hours" -ge "$2" ]; then
+              echo "::error::$1 last succeeded $hours hours ago ($last). Limit: $2 hours. Open its latest run on the Actions page to see why."
+              stale=1
+            else
+              echo "$1: last success $hours hour(s) ago ($last). OK."
+            fi
+          }
+          check news.yml 7
+          check civic.yml 27
+          exit $stale

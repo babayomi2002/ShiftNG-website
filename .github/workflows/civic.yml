@@ -6,6 +6,11 @@ on:
   schedule:
     - cron: '41 1 * * *'   # 02:41 Nigeria time
   workflow_dispatch:
+    inputs:
+      allow_shrink:
+        description: 'Allow a big drop in projects (only when removing many projects on purpose)'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -26,6 +31,7 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          ALLOW_SHRINK: ${{ inputs.allow_shrink }}
         run: node scripts/build-civic.mjs
       - name: Commit if the projects changed
         run: |
@@ -34,8 +40,13 @@ jobs:
             git config user.email "shiftng-civic-bot@users.noreply.github.com"
             git add data/civic
             git commit -m "Refresh civic projects"
-            git pull --rebase
-            git push
+            # The news job may have pushed meanwhile (it only touches data/news.json,
+            # so the rebase cannot conflict). Try up to three times.
+            for attempt in 1 2 3; do
+              git pull --rebase && git push && exit 0
+              echo "Push attempt $attempt failed; retrying."; sleep $((attempt * 10))
+            done
+            exit 1
           else
             echo "No change."
           fi

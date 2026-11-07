@@ -67,6 +67,13 @@ const out = { categories };
 const path = 'data/news.json';
 // Only touch the file (and so only make a commit) when the stories change.
 const before = existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : null;
+// Guard (audit PM-09, 7 Nov 2026): never replace a full News page with an empty
+// one. Every section coming back empty means a failed read, not a quiet day.
+const countStories = (cats) => (cats ?? []).reduce((n, c) => n + c.stories.length, 0);
+if (countStories(categories) === 0 && countStories(before?.categories) > 0) {
+  console.error('STOPPED: the database returned no published stories at all, so news.json was left as it is.');
+  process.exit(1);
+}
 if (before && JSON.stringify(before.categories) === JSON.stringify(out.categories)) {
   console.log('No change in the news.');
 } else {
