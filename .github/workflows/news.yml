@@ -18,29 +18,31 @@ jobs:
   refresh:
     runs-on: ubuntu-latest
     steps:
+      # ref: main, so a run that waited in the queue starts from the newest news,
+      # not from the commit it was queued on (that caused a rebase conflict on 14 Nov).
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Build data/news.json
+      - name: Build data/news.json and commit if it changed
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-        run: node scripts/build-news.mjs
-      - name: Commit if the news changed
         run: |
-          if [ -n "$(git status --porcelain data/news.json)" ]; then
-            git config user.name "shiftng-news-bot"
-            git config user.email "shiftng-news-bot@users.noreply.github.com"
+          git config user.name "shiftng-news-bot"
+          git config user.email "shiftng-news-bot@users.noreply.github.com"
+          # news.json is rebuilt whole from the database, so if someone pushed
+          # meanwhile we start again from their commit instead of merging.
+          for attempt in 1 2 3; do
+            node scripts/build-news.mjs
+            if [ -z "$(git status --porcelain data/news.json)" ]; then echo "No change."; exit 0; fi
             git add data/news.json
-            git commit -m "Refresh news"
-            # The civic job may have pushed meanwhile (it only touches data/civic,
-            # so the rebase cannot conflict). Try up to three times.
-            for attempt in 1 2 3; do
-              git pull --rebase && git push && exit 0
-              echo "Push attempt $attempt failed; retrying."; sleep $((attempt * 10))
-            done
-            exit 1
-          else
-            echo "No change."
-          fi
+            git commit -q -m "Refresh news"
+            git push -q && exit 0
+            echo "Push attempt $attempt failed; starting again from the newest commit."
+            sleep $((attempt * 10))
+            git fetch -q origin main && git reset -q --hard origin/main
+          done
+          exit 1

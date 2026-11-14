@@ -23,7 +23,10 @@ jobs:
   refresh:
     runs-on: ubuntu-latest
     steps:
+      # ref: main, so a run that waited in the queue starts from the newest commit.
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -44,6 +47,7 @@ jobs:
             # so the rebase cannot conflict). Try up to three times.
             for attempt in 1 2 3; do
               git pull --rebase && git push && exit 0
+              git rebase --abort 2>/dev/null || true
               echo "Push attempt $attempt failed; retrying."; sleep $((attempt * 10))
             done
             exit 1
