@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<title>Email confirmed: ShiftNG</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<script>
+  // The confirmation link brings sign-in details after the "#" in the web
+  // address. They are never sent to this website or kept: they are read for
+  // an error message only, then wiped from the address bar straight away.
+  (function () {
+    var hash = window.location.hash.slice(1);
+    window.__failed = /(^|&)error=/.test(hash) || /(^|&|\?)error=/.test(window.location.search);
+    if (hash || window.location.search) {
+      history.replaceState(null, '', window.location.pathname);
+    }
+  })();
+</script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="wordmark" href="/"><img src="/wordmark.svg" alt="ShiftNG" width="89" height="27"></a>
+    <nav class="nav" aria-label="Main">
+      <a href="/">Home</a>
+      <a href="/news.html">News</a>
+      <a href="/elections.html">Elections</a>
+      <a href="/polling-unit.html">Polling unit</a>
+      <a href="/about.html">About</a>
+      <a href="/contact.html">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+  <div class="wrap prose">
+    <div id="ok">
+      <h1>Your email address is confirmed</h1>
+      <p>Thank you. Now open the ShiftNG app on your phone and sign in with your email address and password.</p>
+      <p><a class="button button-green" href="shiftng://">Open the ShiftNG app</a></p>
+      <p class="muted">If the button does nothing, open ShiftNG from your phone's home screen.</p>
+    </div>
+    <div id="failed" hidden>
+      <h1>This link has expired</h1>
+      <p>Confirmation links work once and only for a limited time.</p>
+      <p>Open the ShiftNG app and sign up again with the same email address. We will send you a new link.</p>
+      <p><a class="button button-green" href="shiftng://">Open the ShiftNG app</a></p>
+    </div>
+    <p class="muted">Need help? Email <a href="mailto:contact@shiftng.org">contact@shiftng.org</a>.</p>
+  </div>
+</main>
+
+<script>
+  if (window.__failed) {
+    document.getElementById('ok').hidden = true;
+    document.getElementById('failed').hidden = false;
+  }
+</script>
+</body>
+</html>
