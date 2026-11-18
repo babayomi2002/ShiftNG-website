@@ -1,3 +1,6 @@
+# RETIRED 17 Nov 2026: wordmark.svg is now the designer's logo (people symbol + ShiftNG with
+# a plain gold dot), from "Logo files (name and wordmark)/website/header-logo.svg".
+# Do not run this script; it would put back the old text-only wordmark.
 # Run with fontTools: python make_wordmark.py fonts/Ubuntu-Bold.ttf wordmark.svg
 """Draws the ShiftNG wordmark from Ubuntu Bold as SVG paths: "Shift" in
 Forest green, "NG" in Leaf green, the same letter spacing as the site's CSS."""

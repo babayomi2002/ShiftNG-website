@@ -65,7 +65,7 @@ a:hover { color: var(--green-dark); }
   text-decoration: none;
   color: var(--green);
 }
-.wordmark img { display: block; height: 1.121em; width: auto; }
+.wordmark img { display: block; height: 40px; width: auto; }
 .wordmark:hover { color: var(--green); }
 .nav { display: flex; gap: 4px; flex-wrap: wrap; }
 .nav a {
