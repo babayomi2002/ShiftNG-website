@@ -160,6 +160,10 @@ section.alt .card { background: var(--bg); }
 .prose { max-width: 720px; }
 .prose p, .prose li { color: var(--text); }
 .prose .muted { color: var(--muted); }
+.prose h3 { font-size: 17px; margin: 24px 0 6px; }
+.prose table { width: 100%; border-collapse: collapse; margin: 12px 0 16px; font-size: 15px; line-height: 1.45; }
+.prose th, .prose td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+.prose th { background: var(--green-tint); color: var(--green); font-weight: 700; }
 .quote {
   border-left: 4px solid var(--gold);
   background: var(--green-tint);
