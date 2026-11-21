@@ -134,19 +134,18 @@ for (const p of projects) {
   p.project_readings = readingsOfProject.get(p.id) ?? [];
 }
 
-// What residents say they see, counted once per person over 12 months
-// (the same count the app shows). user_id is read only to count people.
-const since = new Date(Date.now() - 365 * 24 * 3600 * 1000).toISOString();
-const reports = await all(
-  `project_comments?select=id,project_id,user_id,site_says&status=eq.visible&parent_id=is.null&site_says=not.is.null&created_at=gte.${since}&order=id`,
-);
+// What residents say they see, counted once per person over 12 months (the
+// same count the app shows). The database does the counting (step 97), so no
+// account codes leave it; pages of 1,000 by project, like the other reads.
 const residents = {};
-for (const r of reports) {
-  const bucket = r.site_says === 'finished' ? 'finished' : r.site_says === 'in_progress' ? 'inProgress'
-    : r.site_says === 'not_started' || r.site_says === 'abandoned' ? 'notDone' : null;
-  if (!bucket) continue;
-  const p = (residents[r.project_id] ??= { finished: new Set(), inProgress: new Set(), notDone: new Set() });
-  p[bucket].add(r.user_id);
+for (let after = null; ; ) {
+  const from = after === null ? '' : `&project_id=gt.${after}`;
+  const page = await get(`rpc/project_site_says_counts?order=project_id${from}&limit=1000`);
+  for (const r of page) {
+    residents[r.project_id] = { finished: r.finished, inProgress: r.in_progress, notDone: r.not_done };
+  }
+  if (page.length < 1000) break;
+  after = page[page.length - 1].project_id;
 }
 
 // LGAs and wards as INEC names them, from the polling-unit finder's files.
@@ -227,9 +226,9 @@ for (const p of projects) {
     offices,
     history,
     residents: {
-      finished: res ? res.finished.size : 0,
-      inProgress: res ? res.inProgress.size : 0,
-      notDone: res ? res.notDone.size : 0,
+      finished: res ? res.finished : 0,
+      inProgress: res ? res.inProgress : 0,
+      notDone: res ? res.notDone : 0,
     },
   }]);
   keep.add(`${p.id}.json`);
