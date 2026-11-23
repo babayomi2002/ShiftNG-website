@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://znhdvqzxawqnpfceyjnn.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
 <meta name="robots" content="noindex">
 <meta name="referrer" content="no-referrer">
 <title>Email confirmed: ShiftNG</title>
@@ -10,18 +11,7 @@
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="/styles.css">
-<script>
-  // The confirmation link brings sign-in details after the "#" in the web
-  // address. They are never sent to this website or kept: they are read for
-  // an error message only, then wiped from the address bar straight away.
-  (function () {
-    var hash = window.location.hash.slice(1);
-    window.__failed = /(^|&)error=/.test(hash) || /(^|&|\?)error=/.test(window.location.search);
-    if (hash || window.location.search) {
-      history.replaceState(null, '', window.location.pathname);
-    }
-  })();
-</script>
+<script src="/confirmed-early.js"></script>
 </head>
 <body>
 
@@ -57,11 +47,6 @@
   </div>
 </main>
 
-<script>
-  if (window.__failed) {
-    document.getElementById('ok').hidden = true;
-    document.getElementById('failed').hidden = false;
-  }
-</script>
+<script src="/confirmed.js"></script>
 </body>
 </html>

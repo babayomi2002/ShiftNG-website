@@ -158,9 +158,9 @@
       '<p class="result-line" id="result-line"></p></div><div id="results"></div>';
   }
 
-  function chipsHtml(pool) {
-    var count = {};
-    pool.forEach(function (c) { var k = band(c.b); count[k] = (count[k] || 0) + 1; });
+  function chipsHtml(pool, counted) {
+    var count = counted || {};
+    if (!counted) pool.forEach(function (c) { var k = band(c.b); count[k] = (count[k] || 0) + 1; });
     return {
       bands: BANDS.filter(function (b) { return count[b[0]] || bands[b[0]]; }).map(function (b) {
         return '<button type="button" class="chip" data-band="' + b[0] + '" aria-selected="' + !!bands[b[0]] + '">' +
@@ -173,8 +173,30 @@
     };
   }
 
+  // A state's own page, and the Federal page, open from a small first-screen
+  // file (counts and the first cards of each section, PM-70). Searching,
+  // filtering or turning a page fetches the full file first.
+  function needsFull() {
+    return !!(lga || ward || filtering() || Object.keys(pageOf).some(function (k) { return pageOf[k] > 1; }));
+  }
+  var loadingFull = null;
+  function loadFull(then) {
+    var line = document.getElementById('result-line');
+    if (line) line.textContent = 'Loading all projects…';
+    if (!loadingFull) {
+      loadingFull = fetch('data/civic/' + slug(state) + '.json')
+        .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+        .then(function (d) { data = d; });
+    }
+    loadingFull.then(then).catch(function () {
+      loadingFull = null;
+      if (line) line.textContent = 'The projects could not be loaded. Check your connection and try again.';
+    });
+  }
+
   function render() {
     if (nationwide) return renderNationwide();
+    if (data.first && needsFull()) return loadFull(render);
     var specs = sections();
     var placed = data.projects.filter(function (c) {
       return specs.some(function (s) { return C.inSection(c, s.key, lga, ward); });
@@ -183,7 +205,7 @@
     var pool = placed.filter(function (c) { return (!stage || c.s === stage) && matchesWords(c); });
     var on = bandsOn();
     var shownPool = pool.filter(function (c) { return !on.length || on.indexOf(band(c.b)) >= 0; });
-    var chips = chipsHtml(pool);
+    var chips = chipsHtml(pool, data.first ? data.bands : null);
     document.getElementById('band-chips').innerHTML = chips.bands;
     document.getElementById('stage-chips').innerHTML = chips.stages;
     document.getElementById('clear-all').hidden = !filtering();
@@ -202,22 +224,25 @@
     var any = false;
     specs.forEach(function (spec) {
       var items = shownPool.filter(function (c) { return C.inSection(c, spec.key, lga, ward); });
-      if (!items.length) return;
+      // On the first screen the counts come with the file; only the first cards are in it.
+      var count = data.first ? (data.sections[spec.key] || { n: 0 }).n : items.length;
+      if (!count) return;
       any = true;
-      var total = items.reduce(function (n, c) { return n + (c.b || 0); }, 0);
+      var total = data.first ? (data.sections[spec.key] || { b: 0 }).b
+        : items.reduce(function (n, c) { return n + (c.b || 0); }, 0);
       var isOpen = spec.collapsed ? !!open[spec.key] : true;
-      var page = Math.min(pageOf[spec.key] || 1, Math.ceil(items.length / PAGE));
+      var page = Math.min(pageOf[spec.key] || 1, Math.ceil(count / PAGE));
       html += '<section class="project-section" id="sec-' + spec.key + '">' +
         (spec.collapsed
           ? '<button type="button" class="section-toggle" data-section="' + spec.key + '" aria-expanded="' + isOpen + '">' +
-            esc(spec.title) + ' (' + items.length.toLocaleString() + ') <span aria-hidden="true">' + (isOpen ? '▴' : '▾') + '</span></button>'
-          : '<h2>' + esc(spec.title) + ' (' + items.length.toLocaleString() + ')</h2>') +
+            esc(spec.title) + ' (' + count.toLocaleString() + ') <span aria-hidden="true">' + (isOpen ? '▴' : '▾') + '</span></button>'
+          : '<h2>' + esc(spec.title) + ' (' + count.toLocaleString() + ')</h2>') +
         (total > 0 ? '<p class="section-total">' + esc(C.naira(total)) + ' budgeted in total</p>' : '') +
         (spec.hint ? '<p class="section-hint">' + esc(spec.hint) + '</p>' : '');
       if (isOpen) {
         html += '<div class="project-list">' + items.slice((page - 1) * PAGE, page * PAGE).map(function (c) {
           return C.card(c, data.state);
-        }).join('') + '</div>' + pager(spec.key, page, items.length);
+        }).join('') + '</div>' + pager(spec.key, page, count);
       }
       html += '</section>';
     });
@@ -357,7 +382,12 @@
         main.innerHTML = '<p class="muted">We have not added ' + esc(state) + "'s projects yet. We add a state once we have read and checked its own budget documents.</p>";
         return null;
       }
-      return fetch('data/civic/' + slug(state) + '.json').then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
+      // A state's own page or the Federal page: the small first-screen file
+      // (the full one if it is missing); an LGA or ward page: the full file.
+      var full = 'data/civic/' + slug(state) + '.json';
+      var get = function (u) { return fetch(u).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }); };
+      if (lga || ward) return get(full);
+      return get('data/civic/' + slug(state) + '.first.json').catch(function () { return get(full); });
     })
     .then(function (d) {
       if (!d) return;

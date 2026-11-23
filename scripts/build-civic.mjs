@@ -18,6 +18,7 @@
 // change makes no commit.
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
+import { makeFirst } from './civic-first.mjs';
 
 const url = process.env.SUPABASE_URL;
 const key = process.env.SUPABASE_ANON_KEY;
@@ -282,7 +283,11 @@ for (const f of readdirSync('data/civic/p')) {
 const index = [];
 for (const [state, cards] of Object.entries(byState).sort()) {
   cards.sort((a, b) => (b.b ?? -1) - (a.b ?? -1) || a.t.localeCompare(b.t));
-  write(`data/civic/${slug(state)}.json`, { state, lgas: placesOf(state), projects: cards });
+  const full = { state, lgas: placesOf(state), projects: cards };
+  write(`data/civic/${slug(state)}.json`, full);
+  // The page opens from this small file and fetches the full one when needed (PM-70).
+  write(`data/civic/${slug(state)}.first.json`, makeFirst(full));
+  keep.add(`${slug(state)}.first.json`);
   index.push({
     state,
     slug: slug(state),
